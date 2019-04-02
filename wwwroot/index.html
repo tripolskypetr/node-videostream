@@ -1,0 +1,64 @@
+<html>
+    <head>
+        <title>node-videostream</title>
+        <style>
+            html, body {
+                margin: 0px;
+                padding: 0px;
+            }
+        </style>
+
+        <link rel="stylesheet" href="style.css">
+        <script src="videoWorker.js"></script>
+
+    </head>
+    <body>
+        <div>
+            <video preload autoplay height="500px" width="500px"></video>
+            <div><button onclick="createStream();">Create</button><button onclick="connect();">Connect</button></div>
+        </div>
+        <script>
+            const videoWorker = new VideoWorker('video');
+
+            async function createStream() {
+
+                const stream = await navigator.mediaDevices.getDisplayMedia({video: true});
+
+                mediaRecorder = new MediaRecorder(stream, {mimeType: 'video/webm;codecs=vp9'});
+                mediaRecorder.ondataavailable = (e)=> {
+                    videoWorker.pushChunk(e.data);
+                    console.log(videoWorker.size);
+                }
+
+                /*
+                 * Функция запускается с интервалом, проверяет размер видео
+                 * и либо пишет в текущее видео, либо инициирует создание
+                 * нового
+                 */
+                
+                
+                /*
+                function chunkHandler(isAppend) {
+
+                    if(videoWorker.size > 1e+9) {
+                        mediaRecorder.stop();
+                        mediaRecorder.start();
+                        return chunkHandler(true);
+                    }
+                    else if(isAppend) {
+
+                    }
+
+
+                }
+
+                setInterval(()=>mediaRecorder.requestData(),15000);
+                */
+
+                setInterval(()=>mediaRecorder.requestData(),3000);
+                
+                mediaRecorder.start();
+            }
+        </script>
+    </body>
+</html>

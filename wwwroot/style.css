@@ -1,0 +1,20 @@
+body, div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+}
+div {
+    flex-direction: column;
+}
+
+body>div>div {
+    flex-direction: row;
+}
+
+video {
+    border: 1px solid black;
+    margin-bottom: 2px;
+    max-height: 500px;
+    max-width: 500px;
+}
