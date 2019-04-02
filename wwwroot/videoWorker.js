@@ -64,7 +64,7 @@ class VideoWorker {
         URL.revokeObjectURL(this._oldVideoUrl);
         const url = this._oldVideoUrl = URL.createObjectURL(blob);
 
-        if(newBlob) {
+        if(newBlob === true) {
             this._recordedChunks = [blob];
         }
 

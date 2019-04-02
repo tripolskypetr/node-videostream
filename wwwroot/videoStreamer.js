@@ -46,6 +46,8 @@ class VideoStreamer {
         const maxChunksCount = 20;
         const maxBytesCount = 15e6;
 
+        const blobTimeout = 2500;
+
         /*
          *  chrome://blob-internals/
          */
@@ -67,7 +69,7 @@ class VideoStreamer {
                 this._mediaRecorder = new MediaRecorder(this._stream, this._streamOptions);
                 this._mediaRecorder.ondataavailable = blobHandler;
                 this._mediaRecorder.start();
-                capture();
+                capture(true);
             }
             else if (this._videoWorker.chunksCount > maxChunksCount | this._videoWorker.size > maxBytesCount) {
                 this._mediaRecorder.stop();
@@ -79,7 +81,7 @@ class VideoStreamer {
 
         }
 
-        const capture = () => setTimeout(()=>this._mediaRecorder.requestData(),timeout);
+        const capture = (isBlob=false) => setTimeout(()=>this._mediaRecorder.requestData(),isBlob===true?blobTimeout:timeout);
 
         this._mediaRecorder.start();
         this._mediaRecorder.ondataavailable = blobHandler;
