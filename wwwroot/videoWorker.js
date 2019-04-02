@@ -1,3 +1,6 @@
+
+"use strict";
+
 async function imageBitmapToBlob(img) {
     return new Promise(res => {
         const canvas = document.createElement('canvas');
@@ -8,21 +11,34 @@ async function imageBitmapToBlob(img) {
     });
 }
 
+async function mergeBlob(blob,options) {
+    const buffer = await (new Response(blob)).arrayBuffer();
+    return new Blob([buffer],options);
+}
+
 class VideoWorker {
 
-    constructor(video) {
-        this.video=document.querySelector(video);
-        this.recordedChunks=[];
+    constructor(videoSelector, options={type:"video/webm"}) {
+        this._video=document.querySelector(videoSelector);
+        this._recordedChunks=[];
+        this._oldPosterUrl=null;
+        this._oldVideoUrl=null;
+        this._options=options;
         this._size=0;
+        this._isUpdate=false;
     }
 
     get size() {
         return this._size;
     }
 
-    updateVideo = async () => {
+    get chunksCount() {
+        return this._recordedChunks.length;
+    }
 
-        const stream = this.video.captureStream();
+    updateVideo = async (newBlob = false) => {
+
+        const stream = this._video.captureStream();
             
         if(stream.active==true) {
 
@@ -30,37 +46,53 @@ class VideoWorker {
             const capturer = new ImageCapture(track);
             const bitmap = await imageBitmapToBlob(await capturer.grabFrame());
 
-            this.video.poster = URL.createObjectURL(bitmap);
+            URL.revokeObjectURL(this._oldPosterUrl);
+            this._video.poster = this._oldPosterUrl = URL.createObjectURL(bitmap);
         }
 
-        const blob = new Blob(this.recordedChunks);
-        const data = blob.slice(0,blob.lenght);
-        const time = this.recordedChunks.lenght==1?0:this.video.currentTime;
-        const url = URL.createObjectURL(data);
+        let data = null;
+        if(newBlob === true) {
+            const index = this._recordedChunks.length - 1;
+            data = [this._recordedChunks[index]];
+        } else {
+            data = this._recordedChunks;
+        }
 
-        this.recordedChunks = [data];
-        this._size = data.size;
+        const blob = new Blob(data, this._options);
+        const time = this._video.currentTime;
 
-        this.video.src = url;
-        this.video.currentTime = time;
+        URL.revokeObjectURL(this._oldVideoUrl);
+        const url = this._oldVideoUrl = URL.createObjectURL(blob);
+
+        if(newBlob) {
+            this._recordedChunks = [blob];
+        }
+
+        this._size = blob.size;
+        this._video.src = url;
+        this._video.currentTime = time;
     }
 
+    safeUpdateVideo = async (newBlob = false) => {
 
-    /*
-     * push - добавляет к текущему видео
-     * append - записывает видео с нуля
-     *
-     * У 32 разрядного процесса ограничение памяти 4Гб - 
-     * если размер UInt8Array в Blob превысит это значение
-     * ебнется вкладка браузера.
-     */
-    pushChunk = (chunk) => {
-        this.recordedChunks.push(chunk);
-        this.updateVideo();
+        if(this._isUpdate===true) {
+            throw new Error("setInterval not supported. Use setTimeout to prevert double capture")
+        }
+
+        this._isUpdate = true;
+        await this.updateVideo(newBlob);
+        this._isUpdate = false;
     }
 
-    pushBlob = (blob) => {
-        this.recordedChunks=[blob];
-        this.updateVideo();
+    pushChunk = async (chunk) => {  
+        console.log("chunk");
+        this._recordedChunks.push(chunk);
+        await this.safeUpdateVideo();
+    }
+
+    pushBlob = async (blob) => {
+        console.log("blob");
+        this._recordedChunks.push(blob);
+        await this.safeUpdateVideo(true);
     }
 }

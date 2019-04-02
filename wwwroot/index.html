@@ -10,6 +10,7 @@
 
         <link rel="stylesheet" href="style.css">
         <script src="videoWorker.js"></script>
+        <script src="videoStreamer.js"></script>
 
     </head>
     <body>
@@ -18,46 +19,13 @@
             <div><button onclick="createStream();">Create</button><button onclick="connect();">Connect</button></div>
         </div>
         <script>
-            const videoWorker = new VideoWorker('video');
+            const videoStreamer = new VideoStreamer('video');
+            
 
             async function createStream() {
-
-                const stream = await navigator.mediaDevices.getDisplayMedia({video: true});
-
-                mediaRecorder = new MediaRecorder(stream, {mimeType: 'video/webm;codecs=vp9'});
-                mediaRecorder.ondataavailable = (e)=> {
-                    videoWorker.pushChunk(e.data);
-                    console.log(videoWorker.size);
+                if( (await videoStreamer.init()) === true ) {
+                    videoStreamer.start();
                 }
-
-                /*
-                 * Функция запускается с интервалом, проверяет размер видео
-                 * и либо пишет в текущее видео, либо инициирует создание
-                 * нового
-                 */
-                
-                
-                /*
-                function chunkHandler(isAppend) {
-
-                    if(videoWorker.size > 1e+9) {
-                        mediaRecorder.stop();
-                        mediaRecorder.start();
-                        return chunkHandler(true);
-                    }
-                    else if(isAppend) {
-
-                    }
-
-
-                }
-
-                setInterval(()=>mediaRecorder.requestData(),15000);
-                */
-
-                setInterval(()=>mediaRecorder.requestData(),3000);
-                
-                mediaRecorder.start();
             }
         </script>
     </body>
