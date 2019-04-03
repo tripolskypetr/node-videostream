@@ -19,12 +19,18 @@
             <div><button onclick="createStream();">Create</button><button onclick="connect();">Connect</button></div>
         </div>
         <script>
-            const videoStreamer = new VideoStreamer('video');
+            const videoStreamer = new VideoStreamer('video',{type:'video/webm'},{mimeType:"video/webm;codecs=H264",bitsPerSecond: 256 * 8 * 480});
+            const webSocket = new WebSocket("ws://127.0.0.1:8080/");
             
 
             async function createStream() {
                 if( (await videoStreamer.init()) === true ) {
-                    videoStreamer.start();
+                    const p = document.createElement('p');
+                    p.className="bufferingText";
+                    p.innerText="buffering";
+                    document.body.appendChild(p);
+                    await videoStreamer.startAsync();
+                    document.body.removeChild(p);
                 }
             }
         </script>

@@ -48,6 +48,7 @@ class VideoWorker {
 
             URL.revokeObjectURL(this._oldPosterUrl);
             this._video.poster = this._oldPosterUrl = URL.createObjectURL(bitmap);
+            track.stop();
         }
 
         let data = null;

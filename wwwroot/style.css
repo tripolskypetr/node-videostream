@@ -18,3 +18,10 @@ video {
     max-height: 500px;
     max-width: 500px;
 }
+
+.bufferingText {
+    background-color: green;
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+}

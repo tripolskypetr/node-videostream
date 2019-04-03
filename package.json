@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "mime-types": "^2.1.22",
     "ws": "^6.2.1"
   }
 }
