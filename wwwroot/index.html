@@ -9,8 +9,8 @@
         </style>
 
         <link rel="stylesheet" href="style.css">
-        <script src="videoWorker.js"></script>
-        <script src="videoStreamer.js"></script>
+        <script src="./js/VideoWorker.js"></script>
+        <script src="./js/VideoStreamer.js"></script>
 
     </head>
     <body>
@@ -19,7 +19,7 @@
             <div><button onclick="createStream();">Create</button><button onclick="connect();">Connect</button></div>
         </div>
         <script>
-            const videoStreamer = new VideoStreamer('video',{type:'video/webm'},{mimeType:"video/webm;codecs=H264",bitsPerSecond: 256 * 8 * 480});
+            const videoStreamer = new VideoStreamer();
             const webSocket = new WebSocket("ws://127.0.0.1:8080/");
             
 

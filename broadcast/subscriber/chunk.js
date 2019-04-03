@@ -15,12 +15,11 @@ function init(port) {
             buffer = Buffer.concat([buffer,buf],totalLenght);
             broadcast(wss,buf);
         }
-
-        wss.on('connection', function connection(ws) {
-            ws.send(buffer);
-        });
-
     }
+
+    wss.on('connection', function connection(ws) {
+        ws.send(buffer);
+    });
 
     setInterval(()=>ping(wss), 30000);
 
