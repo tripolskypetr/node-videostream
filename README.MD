@@ -2,6 +2,8 @@
 
 From [here][url]
 
+![screenshot](screenshot.png)
+
 Question:
 >I am recording MediaStream on client side in this way:
 > ...
