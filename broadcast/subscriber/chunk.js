@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-const { ping, broadcast } = require('../additional');
+const { broadcast } = require('./additional');
 
 function init(port) {
 
@@ -7,6 +7,8 @@ function init(port) {
     let buffer = new Buffer.alloc(0);
 
     function chunkHandler(buf,isBlob=false) {
+
+        console.log({buf,isBlob});
 
         if(isBlob === true) {
             buffer = buf;
@@ -18,10 +20,10 @@ function init(port) {
     }
 
     wss.on('connection', function connection(ws) {
-        ws.send(buffer);
+        if(buffer.length !== 0) {
+            ws.send(buffer);
+        }
     });
-
-    setInterval(()=>ping(wss), 30000);
 
     return {
         wss,

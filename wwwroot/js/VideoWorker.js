@@ -18,8 +18,8 @@ async function mergeBlob(blob,options) {
 
 class VideoWorker {
 
-    constructor(videoSelector, options={type:"video/webm"}) {
-        this._video=document.querySelector(videoSelector);
+    constructor(video, options={type:"video/webm"}) {
+        this._video=video;
         this._recordedChunks=[];
         this._oldPosterUrl=null;
         this._oldVideoUrl=null;
@@ -36,7 +36,7 @@ class VideoWorker {
         return this._recordedChunks.length;
     }
 
-    updateVideo = async (newBlob = false) => {
+    _updateVideo = async (newBlob = false) => {
 
         const stream = this._video.captureStream();
             
@@ -81,18 +81,16 @@ class VideoWorker {
         }
 
         this._isUpdate = true;
-        await this.updateVideo(newBlob);
+        await this._updateVideo(newBlob);
         this._isUpdate = false;
     }
 
     pushChunk = async (chunk) => {  
-        console.log("chunk");
         this._recordedChunks.push(chunk);
         await this.safeUpdateVideo();
     }
 
     pushBlob = async (blob) => {
-        console.log("blob");
         this._recordedChunks.push(blob);
         await this.safeUpdateVideo(true);
     }

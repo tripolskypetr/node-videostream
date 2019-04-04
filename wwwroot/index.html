@@ -1,37 +1,32 @@
 <html>
     <head>
         <title>node-videostream</title>
-        <style>
-            html, body {
-                margin: 0px;
-                padding: 0px;
-            }
-        </style>
 
         <link rel="stylesheet" href="style.css">
+
         <script src="./js/VideoWorker.js"></script>
         <script src="./js/VideoStreamer.js"></script>
+        <script src="./js/WebsocketStreamer.js"></script>
+        <script src="./js/WebsocketListener.js"></script>
 
     </head>
     <body>
         <div>
             <video preload autoplay height="500px" width="500px"></video>
-            <div><button onclick="createStream();">Create</button><button onclick="connect();">Connect</button></div>
+            <div><button onclick="stream();">Stream</button><button onclick="listen();">Listen</button></div>
         </div>
         <script>
-            const videoStreamer = new VideoStreamer();
-            const webSocket = new WebSocket("ws://127.0.0.1:8080/");
+            let websocketObject = null;
             
+            async function stream() {
+                websocketObject = new WebsocketStreamer(8081,8082);
+                await websocketObject.startAsync();
+                console.log("Streaming started!");
+            }
 
-            async function createStream() {
-                if( (await videoStreamer.init()) === true ) {
-                    const p = document.createElement('p');
-                    p.className="bufferingText";
-                    p.innerText="buffering";
-                    document.body.appendChild(p);
-                    await videoStreamer.startAsync();
-                    document.body.removeChild(p);
-                }
+            function listen() {
+                websocketObject = new WebsocketListener(8083,8084);
+                console.log("Listening started!");
             }
         </script>
     </body>

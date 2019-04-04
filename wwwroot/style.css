@@ -1,3 +1,8 @@
+html, body {
+    margin: 0px;
+    padding: 0px;
+}
+
 body, div {
     display: flex;
     align-items: center;
@@ -21,6 +26,8 @@ video {
 
 .bufferingText {
     background-color: green;
+    border: 1px solid black;
+    padding: 5px;
     position: fixed;
     bottom: 10px;
     left: 10px;

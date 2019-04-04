@@ -3,10 +3,9 @@
 
 class VideoStreamer {
 
-
     constructor(videoSelector,blobOptions={type:"video/webm"}, streamOptions={mimeType: 'video/webm;codecs=vp9'}) {
-        this._videoWorker = new VideoWorker(videoSelector,blobOptions);
         this._video = document.querySelector(videoSelector);
+        this._blobOptions = blobOptions;
         this._streamOptions = streamOptions;
         this._isStreaming = false;
         this._initComplete = false;
@@ -55,6 +54,7 @@ class VideoStreamer {
         }
 
         this._onstart = resolve;
+        this._videoWorker = new VideoWorker(this._video,this._blobOptions);
 
         const timeout = 20000;
         const maxChunksCount = 20;
@@ -65,7 +65,6 @@ class VideoStreamer {
         /* chrome://blob-internals/ */
 
         const blobHandler = async (e) => {
-            if(this._videoWorker.chunksCount==1) debugger;
             await this._videoWorker.pushBlob(e.data);
             if(this._onblob) this._onblob(e.data);
             this._mediaRecorder.ondataavailable = chunkHandler;
@@ -73,8 +72,6 @@ class VideoStreamer {
         }
 
         const chunkHandler = async (e) => {
-
-            console.log({chunks:this._videoWorker.chunksCount,size:this._videoWorker.size});
 
             if (this._mediaRecorder.state === 'inactive' && this._isStreaming === true) {
                 this._mediaRecorder.ondataavailable = undefined;
@@ -87,6 +84,7 @@ class VideoStreamer {
                 this._onstop = null;
                 this._mediaRecorder = null;
                 this._stream = null;
+                this._videoWorker = null;
                 this._initComplete = false;
             } else if (this._videoWorker.chunksCount > maxChunksCount | this._videoWorker.size > maxBytesCount | this._isStreaming === false) {
                 this._mediaRecorder.stop();
@@ -106,9 +104,9 @@ class VideoStreamer {
             this._onstart = null;
             blobHandler(e);
             this._mediaRecorder.ondataavailable = blobHandler;
+            this._isStreaming = true;
         };
-        this._isStreaming = true;
-
+        
         capture();
     })
 
@@ -116,6 +114,11 @@ class VideoStreamer {
 
         if(this._onstop !== null) {
             reject(new Error("Last stopAsync() now resolved"));
+            return;
+        }
+
+        if(this._isStreaming === false) {
+            reject(new Error("Stream not started"));
             return;
         }
 

@@ -1,5 +1,4 @@
 const WebSocket = require('ws');
-const { ping } = require('../additional');
 
 function init(port, callBack){
 
@@ -10,9 +9,7 @@ function init(port, callBack){
             callBack(buf);
         });
     });
-
-    setInterval(()=>ping(wss), 30000);
-
+    
     return wss;
 }
 
